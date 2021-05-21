@@ -60,6 +60,8 @@ def runChase(
     steps,
     hDiff,
     lDiff,
+    multy = False,
+    multySize = 3,
     draw=False,
     optimum=None,
     greed=None,
@@ -68,20 +70,37 @@ def runChase(
     sumPart=sumPart,
 ):
     MUTATION_RATE = mutationRate
-    wolfs = eg.GeneticCommivAlg(
-        "wolf",
+    wolfs, rabbits = 0,0
+    if multy:
+        wolfs = [ eg.GeneticCommivAlg(
+        "wolf" + str(i),
         size,
         populationSize,
         individKwargs={"size": size},
         mutationRateGen=mutateRate,
-    )
-    rabbits = eg.GeneticCommivAlg(
-        "rabbits",
-        size,
-        populationSize,
-        individKwargs={"size": len(WAYS)},
-        mutationRateGen=mutateRate,
-    )
+        ) for i in range(multySize)]
+        rabbits = [ eg.GeneticCommivAlg(
+            "rabbits" + str(i),
+            size,
+            populationSize,
+            individKwargs={"size": len(WAYS)},
+            mutationRateGen=mutateRate,
+        ) for i in range(multySize)]
+    else:
+        wolfs = eg.GeneticCommivAlg(
+            "wolf",
+            size,
+            populationSize,
+            individKwargs={"size": size},
+            mutationRateGen=mutateRate,
+        )
+        rabbits = eg.GeneticCommivAlg(
+            "rabbits",
+            size,
+            populationSize,
+            individKwargs={"size": len(WAYS)},
+            mutationRateGen=mutateRate,
+        )
     evolveKw = {
         "adaptation": adaptationBrok,
         "getParents": getParents,
@@ -92,20 +111,37 @@ def runChase(
         "selectionKwargs": {},
     }
     selectionKw = {"adaptation": adaptationBrok, "size": populationSize}
-    ans = eg.runChase(
-        rabbits,
-        wolfs,
-        selection,
-        adaptationSum,
-        steps,
-        populationSize,
-        sumPart,
-        evolveKw,
-        selectionKw,
-        hDiff,
-        lDiff,
-        draw,
-    )
+    ans = 0
+    if multy:
+        ans = eg.runMultyChase(
+            allRabbits=rabbits,
+            allWolfs=wolfs,
+            selection=selection,
+            adaptationSum=adaptationSum,
+            steps=steps,
+            populationSize=populationSize,
+            sumPart=sumPart,
+            evolveKw=evolveKw,
+            selectionKwargs=selectionKw,
+            hDiff=hDiff,
+            lDiff=lDiff,
+            draw=draw,
+        )
+    else:
+        ans = eg.runChase(
+            rabbits=rabbits,
+            wolfs=wolfs,
+            selection=selection,
+            adaptationSum=adaptationSum,
+            steps=steps,
+            populationSize=populationSize,
+            sumPart=sumPart,
+            evolveKw=evolveKw,
+            selectionKwargs=selectionKw,
+            hDiff=hDiff,
+            lDiff=lDiff,
+            draw=draw,
+        )
     if draw:
         df = pd.DataFrame(ans[0])
         df["optimum"] = optimum

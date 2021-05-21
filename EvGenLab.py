@@ -545,3 +545,62 @@ def runChase(
         return [{rabbits.name: rabbits.results, wolfs.name: wolfs.results}, best]
     else:
         return (best, adaptationSum(best))
+
+
+def runMultyChase(
+    allRabbits,
+    allWolfs,
+    selection,
+    adaptationSum,
+    steps,
+    populationSize,
+    sumPart,
+    evolveKw,
+    selectionKwargs,
+    lDiff,
+    hDiff,
+    draw=False,
+):
+    stuckNum = populationSize/10
+    stuckStep = 0
+    bestRabbits = [max(rabbits.population, key=lambda a: adaptationSum(a)) for rabbits in allRabbits]
+    bestWolfs = [max(wolfs.population, key=lambda a: adaptationSum(a)) for wolfs in allWolfs]
+    best = max(bestRabbits + bestWolfs, key=lambda a: adaptationSum(a))
+    while allRabbits[0].step < steps:
+        for wolfs in allWolfs:
+            wolfs.evolve(**evolveKw)
+        for rabbits in allRabbits:
+            rabbits.evolve(**evolveKw)
+        for wolfs in allWolfs:
+            for rabbits in allRabbits:
+                stuck = stuckStep > stuckNum
+                if stuck:
+                    stuckStep = 0
+                newPopulation = selectionChaseRand(
+                    rabbits.population, adaptationSum, wolfs.population, sumPart, stuck, hDiff, lDiff, False
+                    )
+                rabbits.population = newPopulation[0]
+                wolfs.population = newPopulation[1]
+                rabbits.population = selection(rabbits.population, **selectionKwargs)
+                wolfs.population = selection(rabbits.population, **selectionKwargs)
+        newWolf = [max(wolfs.population, key=lambda a: adaptationSum(a)) for wolfs in allWolfs]
+        newRabbit = [max(rabbits.population, key=lambda a: adaptationSum(a)) for rabbits in allRabbits]
+        if bestRabbits == newRabbit and bestWolfs == newWolf:
+            stuckStep += 1
+        else :
+            stuckStep = 0
+        bestWolfs = newWolf
+        bestRabbits = newRabbit
+        bestRabbits.append(best)
+        best = max(bestRabbits + bestWolfs, key=lambda a: adaptationSum(a))
+        bestRabbits = bestRabbits[:-1]
+    if draw:
+        ans = {}
+        for rabbits in allRabbits:
+            ans[rabbits.name] = rabbits.results
+        for wolfs in allWolfs:
+            ans[wolfs.name] = wolfs.results
+        return[ans, best]
+    else:
+        return best
+
