@@ -316,7 +316,6 @@ def selectionChase(rabbits, adaptation, wolfs, sumLeght, show=True):
     aliveWolf = []
     rabbitsOrder = random.sample(rabbits, k=len(rabbits))
     wolfsOrder = random.sample(wolfs, k=len(wolfs))
-    # breakpoint()
     for i in range(len(rabbitsOrder)):
         print(i)
         if i == len(wolfs):
@@ -355,7 +354,6 @@ def selectionChase(rabbits, adaptation, wolfs, sumLeght, show=True):
 
 
 def selectionChaseRand(rabbits, adaptation, wolfs, sumLeght, stuck, hDiff, lDiff, show=True):
-    # breakpoint()
     rabbitsOrder = random.sample(rabbits, k=len(rabbits))
     wolfsOrder = random.sample(wolfs, k=len(wolfs))
     maxRabbit = max([adaptation(i) for i in rabbits])
@@ -542,7 +540,7 @@ def runChase(
         bestRabbit = newRabbit
         best = max(bestRabbit, bestWolf, best, key=lambda a: adaptationSum(a))
     if draw:
-        return [{rabbits.name: rabbits.results, wolfs.name: wolfs.results}, best]
+        return [{rabbits.name: rabbits.results, wolfs.name: wolfs.results}, (best, adaptationSum(best))]
     else:
         return (best, adaptationSum(best))
 
@@ -602,5 +600,5 @@ def runMultyChase(
             ans[wolfs.name] = wolfs.results
         return[ans, best]
     else:
-        return best
+        return (best, adaptationSum(best))
 
