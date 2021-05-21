@@ -1,0 +1,3 @@
+gitingnore
+for_com.txt
+__pycache__
